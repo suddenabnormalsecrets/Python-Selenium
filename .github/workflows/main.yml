@@ -24,13 +24,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Docker
-        run: apt-get update && apt-get install -y docker.io
-
-      - name: Run TruffleHog directly
-        run: |
-          docker run --rm -v ${{ github.workspace }}:/scan ghcr.io/trufflesecurity/trufflehog:latest \
-            git file:///scan \
-            --base=${{ github.event.repository.default_branch }} \
-            --head=HEAD \
-            --results=verified,unknown
+      - name: TruffleHog - Secrets Scan
+        id: trufflehog
+        if: always()
+        uses: trufflesecurity/trufflehog@v3.88.25
+        with:
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --results=verified,unknown
+          path: ${{ github.workspace }}  # Explicitly set the path
