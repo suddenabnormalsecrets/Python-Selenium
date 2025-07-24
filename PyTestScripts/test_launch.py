@@ -50,3 +50,4 @@
 #     sleep(2)
 #     dr.find_element(By.XPATH, '//button[text() = " Login "]').click()
 #     dr.close()
+#aws_access_key_id = AKIAUM4G6O6NMCSVOKF5  aws_secret_access_key = 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
