@@ -31,5 +31,5 @@ jobs:
         with:
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
-          extra_args: --results=verified,unknown
+          # extra_args: --results=verified,unknown
           path: ${{ github.workspace }}  # Explicitly set the path
