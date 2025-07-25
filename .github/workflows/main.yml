@@ -3,7 +3,7 @@ name: TruffleHog Secret Scanner
 on:
   push:
     branches: 
-      - i4sfd0-heads-main
+      - main
   pull_request:
 
 permissions:
