@@ -1,35 +1,42 @@
-name: Test
+name: TruffleHog Secret Scanner
 
 on:
   push:
-    branches:
-      - main
+    branches: 
+      - trufflehog
   pull_request:
 
-permissions:
-  contents: read
-  id-token: write
-  issues: write
-  pull-requests: write
-
 jobs:
-  TruffleHog:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+  scan:
+    runs-on: pearson-general
 
-      - name: TruffleHog - Secrets Scan
-        id: trufflehog
-        if: always()
-        uses: trufflesecurity/trufflehog@v3.88.25
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with:
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          # extra_args: --results=verified,unknown
-          path: ${{ github.workspace }}  # Explicitly set the path
+          fetch-depth: 0  # Full git history required
+
+      - name: Create results directory
+        if: always()
+        run: mkdir -p scan-results
+
+      - name: Run TruffleHog
+        id: trufflehog
+        run: |
+          trufflehog git file://. --json --results=verified,unverified,unknown > scan-results/trufflehog-results.json || true
+
+      - name: Show summary of detected secrets
+        if: always()
+        run: |
+          echo "🕵️ TruffleHog Scan Summary:"
+          if [ -s scan-results/trufflehog-results.json ]; then
+            jq -r '. | select(.metadata != null) | "🔒 Secret in file: \(.source_metadata.filename) at line \(.source_metadata.line)"' scan-results/trufflehog-results.json || echo "✅ No secrets found or invalid JSON format."
+          else
+            echo "✅ No secrets found."
+          fi
+
+      - name: Fail if secrets found
+        if: steps.trufflehog.outcome == 'failure'
+        run: |
+          echo "❌ TruffleHog found potential secrets! Review the summary above."
+          exit 1
