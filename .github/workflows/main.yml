@@ -20,15 +20,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run TruffleHog
-        id: trufflehog
-        uses: trufflesecurity/trufflehog@main
-        continue-on-error: true
-        with:
-          path: ./
-          base: "${{ github.event.repository.default_branch }}"
-          head: HEAD
-          extra_args: --debug --fail --json --output trufflehog-results.json
+      - name: Run TruffleHog via Docker
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/src \
+            ghcr.io/trufflesecurity/trufflehog:3.90.2 \
+            git /src \
+            --base=${{ github.event.pull_request.base.sha }} \
+            --head=HEAD \
+            --fail \
+            --json \
+            --output=/src/trufflehog-results.json \
+            --debug
+
+      # - name: Run TruffleHog
+      #   id: trufflehog
+      #   uses: trufflesecurity/trufflehog@main
+      #   continue-on-error: true
+      #   with:
+      #     path: ./
+      #     base: "${{ github.event.repository.default_branch }}"
+      #     head: HEAD
+      #     extra_args: --debug --fail --json --output trufflehog-results.json
 
       - name: Upload TruffleHog Results
         if: always()
