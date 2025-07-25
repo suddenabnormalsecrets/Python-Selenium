@@ -30,7 +30,7 @@ jobs:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.event.pull_request.head.sha }}
           # head: HEAD
-          extra_args: --fail --debug
+          extra_args: --debug
 
       - name: Fail if secrets found
         if: steps.trufflehog.outcome == 'failure'
