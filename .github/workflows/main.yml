@@ -28,7 +28,10 @@ jobs:
           path: ./
           base: "${{ github.event.repository.default_branch }}"
           head: HEAD
-          extra_args: --debug --json --output trufflehog-results.json
+          extra_args: >- 
+            --debug 
+            --json 
+            --output trufflehog-results.json
 
       - name: Upload TruffleHog Results
         if: always()
