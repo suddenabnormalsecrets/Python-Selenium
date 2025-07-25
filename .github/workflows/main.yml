@@ -3,12 +3,15 @@ name: TruffleHog Secret Scanner
 on:
   push:
     branches: 
-      - trufflehog
+      - i4sfd0-heads-main
   pull_request:
 
 jobs:
   scan:
-    runs-on: pearson-general
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout repo
