@@ -2,8 +2,7 @@ name: TruffleHog Secret Scanner
 
 on:
   push:
-    branches: 
-      - main
+    branches: [main]
   pull_request:
 
 permissions:
@@ -15,18 +14,15 @@ permissions:
 jobs:
   TruffleHog:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: TruffleHog OSS
+      - name: Run TruffleHog
         id: trufflehog
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@latest
         continue-on-error: true
         with:
           path: ./
@@ -34,6 +30,8 @@ jobs:
           head: HEAD
           extra_args: --debug
 
-      - name: Scan Results Status
+      - name: Fail if secrets found
         if: steps.trufflehog.outcome == 'failure'
-        run: exit 1
+        run: |
+          echo "❌ TruffleHog scan failed (secrets may be found)"
+          exit 1
